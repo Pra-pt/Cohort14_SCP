@@ -3,39 +3,9 @@
  *  compile with: gcc -lm client-management.c
  */
 
-#include "stdio.h"
-#include "stdlib.h"
-#include "string.h"
-#include "math.h"
-#include "time.h"
-//#include<mpi.h>
-#define TRUE 1
-#define FALSE !TRUE
-#define SIZE_HASH_MAP 10
-#define HASH_CONSTANT ((sqrt(5) - 1) / 2)
-#define NUMOFGROUPS 5
-typedef struct node{
-   // int value;
-    int cid;
-    int gid;
-    int fd;
-    struct node *next;
-}clientInfo;
+#include "client-management.h"
 
 static clientInfo* clientList[SIZE_HASH_MAP];           // hash table
-/* HASH FUNCTIONS */
-int hash(int value);                                         /* hash function */
-
-//void addClient(int clientId,int groupId,int fileDescriptor);  
-//int searchClient_info(int clientId,int groupId,int fileDescriptor);   
-//int deleteClient();   //TODO
-
-typedef struct groupNode{
-    int clientId;
-    int sockfd;
-    struct groupNode *next;
-}groupNode;
-
 static groupNode *groupList[NUMOFGROUPS];
 
 /* HASH FUNCTIONS */
@@ -45,6 +15,9 @@ int hash(int value){
     //return (SIZE_HASH_MAP * fmod((value * HASH_CONSTANT),1));
 }
 
+/*
+ *Client Api's implementation
+ */
 void addClient(int cid,int gid,int fd){
     //hashing based on the fd 
     int key = hash(fd);                                  
@@ -127,12 +100,15 @@ void deleteClient(int cid,int gid,int fd)
     }
 }
 
-addClient_to_group(int cid,int gid,int fd){                                         
+/*
+ *Group management Api's implementation
+ */
+void addClient_to_group(int cid,int gid,int fd){                                     
     // stores the hash value of the number to be inserted                       
     if(groupList[gid] == NULL){                                                
         // if the list in clientList[key] is empty                              
        // printf("\nwhen clientList[key] is NULL ");                            
-        groupList[gid] = malloc(sizeof(groupNode));    // then creates a new list
+        groupList[gid] = malloc(sizeof(groupNode));   // then creates a new list
         groupList[gid]->clientId = cid;
         groupList[gid]->sockfd=fd;                                             
         groupList[gid]->next = NULL;                                           
@@ -146,46 +122,47 @@ addClient_to_group(int cid,int gid,int fd){
         hashTableNode->next = malloc(sizeof(groupNode));                       
         // insert the value as the last element of the list                     
         hashTableNode->next->clientId = cid;
-        hashTableNode->next->sockfd = fd;                                         
+        hashTableNode->next->sockfd = fd;                                      
         hashTableNode->next->next = NULL;                                       
     }                                                                           
 } 
 
                                      
-void deleteClient_from_group(int cid,int gid,int fd)                                       
+void deleteClient_from_group(int cid,int gid,int fd)                            
 {                                                                               
     if(groupList[gid] == NULL)                                                 
     {                                                                           
         //client not present                                                    
-        printf("client not found in the grouplist\n");                               
+        printf("client not found in the grouplist\n");                          
         return;                                                                 
     }                                                                           
     else                                                                        
     {                                                                           
         //clientInfo *head = clientList[key];                                   
-        if(groupList[gid]->clientId == cid)                                           
+        if(groupList[gid]->clientId == cid)                                  
         {                                                                       
             groupList[gid]=NULL;                                               
         }                                                                       
         else                                                                    
         {                                                                       
             groupNode *head = groupList[gid];                                 
-            while(head->next!=NULL && head->next->clientId !=cid)                      
+            while(head->next!=NULL && head->next->clientId !=cid)               
             {                                                                   
                 head = head->next;                                              
             }                                                                   
-            if(head->next->clientId == cid)                                            
+            if(head->next->clientId == cid)                                     
             {                                                                   
                 groupNode *temp = head->next;                                  
                 head->next=head->next->next;                                    
                 free(temp);                                                     
                 temp=NULL;                                                      
-                printf("client with cid: %d  deleted successfully from group: %d !!!\n",cid,gid);         
+                printf("client with cid: %d  deleted successfully from group:\
+                        %d !!!\n",cid,gid);         
                return;                                                         
             }                                                                   
             if(head->next == NULL)                                              
             {                                                                   
-                printf("client not found in the grouplist\n");                       
+                printf("client not found in the grouplist\n");                
                 return;                                                         
             }                                                                   
         }                                                                       
@@ -196,7 +173,7 @@ void displayClients_within_group(int gid)
  groupNode *hashMapNode = groupList[gid];
  printf("\nGroup %d :\n",gid);                              
  while(hashMapNode!=NULL){                                                      
-    printf("\t client %d \n",hashMapNode->clientId);                                            
+    printf("\t client %d \n",hashMapNode->clientId);                            
     hashMapNode = hashMapNode->next;                                           
   }       
  printf("\n");
@@ -292,9 +269,6 @@ void displayUserInterface()
     }
 }
 
-
-
-
 /* AUXILIARY FUNCTIONS */
 void populateHashMap(int numbersToBeGenerated){                     // generates random numbers
     int k = 1;
@@ -335,7 +309,7 @@ void searchNumbers(int numbersToBeSearched){
     }
 }
 
-#if 0
+//#if 0
 int main (int argc, char const *argv[]){
     srand(time(NULL));
     populateHashMap(25);                                                        
@@ -353,4 +327,4 @@ int main (int argc, char const *argv[]){
    displayClients_within_group(2);
    displayClients_within_group(3);
 }
-#endif
+//#endif
