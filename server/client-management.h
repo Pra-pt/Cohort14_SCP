@@ -8,9 +8,9 @@
 //#include<mpi.h>
 #define TRUE 1
 #define FALSE !TRUE
-#define SIZE_HASH_MAP 10
+#define SIZE_HASH_MAP 10000
 #define HASH_CONSTANT ((sqrt(5) - 1) / 2)
-#define NUMOFGROUPS 5
+#define NUMOFGROUPS 1024
 
 /*
  * Client data structure
