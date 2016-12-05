@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <pthread.h>
+#include "message_handling.h"
 
 void displayUserInterface(void);
 
@@ -159,6 +160,7 @@ void handle_client( int s, int i, struct epoll_event *events ){
                   ssize_t count;
                   char buf[512];
                   char *ptr=buf;
+                  struct Mesg_header *mesg=NULL;
 
                   count = read (events[i].data.fd, buf, sizeof buf);
                   if (count == -1)
@@ -179,8 +181,15 @@ void handle_client( int s, int i, struct epoll_event *events ){
                       done = 1;
                       break;
                     }
+                  mesg = (struct Mesg_header *)buf;
+                  printf("\nMessage received type:%d, group:%d,flag:%d ",\
+                          (int )mesg->type, (int )mesg->group_id, (int )mesg->flags);
+#if 0
                   //if ( buf[0] == 1) {
                   //    printf("Received Group No 1");
+
+                  
+                  
                   //} else {
                       printf ("\n\tReceived %d :", buf[0]);
                       ptr = &buf[0] + 1;
@@ -197,6 +206,10 @@ void handle_client( int s, int i, struct epoll_event *events ){
                       perror ("write");
                       abort ();
                     }
+#else
+                  process_msg_at_server(mesg, events[i].data.fd);
+#endif
+
                 }
 
               if (done)

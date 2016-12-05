@@ -11,9 +11,8 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-
 #include <arpa/inet.h>
-
+#include "message_handling.h"
 #define PORT "4020" // the port client will be connecting to 
 
 #define MAXDATASIZE 1000 // max number of bytes we can get at once 
@@ -51,7 +50,11 @@ char* rand_string_alloc(size_t size)
      return s;
 }
 
-
+/*
+ *1. send group join messages & send end message.
+ *2. wait for ack message from server.
+ *3. wait for server mesg for next instruction. 
+ */
 void client_manage(int sockfd){
     char buf[MAXDATASIZE];
     int count =100;
@@ -69,9 +72,57 @@ void client_manage(int sockfd){
     //}
     //else {
         //printf("Client:Message being sent: %s\n",buf);
-        while(1 && count !=5) {
-            memset(buf,'\0',MAXDATASIZE);
+
+
+/*Taking list of groups which the client want to join.
+*/
+  int numOfGroups = 0,j = 0;                                                   
+  int groups[1024];                                                             
+  char temp;                                                                    
+  printf("\nEnter groups to join:"); 
+  do {                                                                          
+      scanf("%d%c", &groups[numOfGroups], &temp);                              
+      numOfGroups++;                                                           
+  } while(temp != '\n');                                                        
+                                                                                
+  for(j=0; j<numOfGroups; j++) {                                              
+    printf("%d ", groups[j]);                                                   
+  }        
+
+    for(j=0;j<numOfGroups;j++)
+    {
+        struct Mesg_header *mesg = (struct Mesg_header*)malloc(sizeof\
+        (struct Mesg_header));
+        mesg->type=JOIN_REQUEST;
+        if(j==(numOfGroups-1))
+        {
+            mesg->flags=END;;
+        }
+        else
+        {    
+            mesg->flags=CONT;
+        }
+        mesg->group_id=groups[j];
+        if ((send(sockfd,mesg, sizeof(mesg),0))== -1) {                       
+            fprintf(stderr, "Failure Sending Message\n");               
+            close(sockfd);                                              
+            exit(1);                                                    
+        }                                                                   
+        else {                                                              
+            printf("Client:Message being sent: \n");              
+        }      
+
+        recv(sockfd, mesg,sizeof(mesg), 0);
+        printf("\nreceived mesg type:%d, group_id:%d , flag:%d  ",mesg->type\
+                ,mesg->group_id,mesg->flags);
+    }
+
+
+
 #if 0
+    while(1 && count !=5) {
+            memset(buf,'\0',MAXDATASIZE);
+
             sleep(2);
             /* snprintf(buf, MAXDATASIZE,"Client of group %s : Message: %s", \
                  argv[2], rand_string_alloc(10)); */
@@ -87,7 +138,7 @@ void client_manage(int sockfd){
             count --;
             sleep(10);
         }
-#else
+//#else
         int ii =1, jj = 0;
         printf("\n");
         recv(sockfd, buf, MAXDATASIZE, 0);
@@ -122,7 +173,7 @@ void client_manage(int sockfd){
     //}
 
 #endif
-    }
+  //  }
     close(sockfd);
 }
 

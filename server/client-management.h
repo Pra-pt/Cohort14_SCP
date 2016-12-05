@@ -4,6 +4,7 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#include "message_handling.h"
 //#include<mpi.h>
 #define TRUE 1
 #define FALSE !TRUE
@@ -19,13 +20,14 @@ typedef struct node{
     int cid;
     int gid;
     int fd;
+    int status;
     struct node *next;
 }clientInfo;
 
 /* HASH FUNCTIONS */
 int hash(int value);                                         /* hash function */
 
-
+extern clientInfo* clientList[SIZE_HASH_MAP];
 
 /*
  * Api's for client management
@@ -46,7 +48,7 @@ typedef struct groupNode{
 /*
  *Api's for group management
  */
-void addClient_to_group(int cid,int gid,int fd);                                     
+void addClient_to_group(int cid,int gid,int fd);                               
 void deleteClient_from_group(int cid,int gid,int fd);                           
 void displayClients_within_group(int gid);
 groupNode* getClientList_within_group(int gid);

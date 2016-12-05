@@ -1,11 +1,12 @@
 /*
- *      An implementation in C of search and insertion operations for a hash table with linear probing
- *  compile with: gcc -lm client-management.c
+ *      An implementation in C of search and insertion operations for a hash 
+ *      table with linear probing.
+ *      compile with: gcc -lm client-management.c
  */
 
 #include "client-management.h"
 
-static clientInfo* clientList[SIZE_HASH_MAP];           // hash table
+clientInfo* clientList[SIZE_HASH_MAP];           // hash table
 static groupNode *groupList[NUMOFGROUPS];
 
 /* HASH FUNCTIONS */
@@ -29,6 +30,7 @@ void addClient(int cid,int gid,int fd){
         clientList[key]->cid = cid;
         clientList[key]->gid = gid;
         clientList[key]->fd = fd;
+        clientList[key]->status=UNKNOWN;
         clientList[key]->next = NULL;
     }else{                                            
         // if the list in clientList[key] is not empty
@@ -42,6 +44,7 @@ void addClient(int cid,int gid,int fd){
         hashTableNode->next->cid = cid;
         hashTableNode->next->gid = gid;
         hashTableNode->next->fd = fd;
+        hashTableNode->next->status=UNKNOWN;
         hashTableNode->next->next = NULL;
     }
 }
@@ -309,7 +312,7 @@ void searchNumbers(int numbersToBeSearched){
     }
 }
 
-//#if 0
+#if 0
 int main (int argc, char const *argv[]){
     srand(time(NULL));
     populateHashMap(25);                                                        
@@ -327,4 +330,4 @@ int main (int argc, char const *argv[]){
    displayClients_within_group(2);
    displayClients_within_group(3);
 }
-//#endif
+#endif
