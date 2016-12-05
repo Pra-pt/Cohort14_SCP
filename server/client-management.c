@@ -5,6 +5,10 @@
  */
 
 #include "client-management.h"
+#include <pthread.h>
+
+pthread_mutex_t clientList_mutex;
+pthread_mutex_t groupList_mutex;
 
 clientInfo* clientList[SIZE_HASH_MAP];           // hash table
 static groupNode *groupList[NUMOFGROUPS];

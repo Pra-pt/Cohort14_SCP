@@ -53,7 +53,18 @@ void process_msg_at_server(struct Mesg_header *message, int client_id)
                                     }
                                 }
                                 printf("Message with type = Join Request \n ");
+                                header->flags=ACK;
+                                
+                                if ((send(client_id,header, sizeof(header),0))== -1) {                         
+                                 fprintf(stderr, "Failure Sending Message\n");                       
+                                 close(client_id);                                               
+                                 exit(1);                                                            
+                                }                                                                       
+                                else {                                                                  
+                                 printf("Client:Message being sent: \n");                            
+                                }  
                                 break;
+
         case DATA:              printf("Message with type =data is received\n");
                                 break;
         case UPDATE_REQUEST:    printf("Message with type= Update Request\
