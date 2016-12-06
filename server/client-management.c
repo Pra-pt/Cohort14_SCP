@@ -27,6 +27,7 @@ void addClient(int cid,int gid,int fd){
     //hashing based on the fd 
     int key = hash(fd);                                  
     // stores the hash value of the number to be inserted
+    pthread_mutex_lock(&clientList_mutex);
     if(clientList[key] == NULL){                    
         // if the list in clientList[key] is empty
        // printf("\nwhen clientList[key] is NULL ");
@@ -51,28 +52,35 @@ void addClient(int cid,int gid,int fd){
         hashTableNode->next->status=UNKNOWN;
         hashTableNode->next->next = NULL;
     }
+    pthread_mutex_unlock(&clientList_mutex);
 }
 
 clientInfo* searchClient_info(int cid,int gid,int fd){
+    pthread_mutex_lock(&clientList_mutex);
     clientInfo *hashTableNode = clientList[hash(fd)]; 
     // pointer to the list stored in clientList[hash(value)]
     while(hashTableNode!=NULL){                                
         // scrolls the list
         if(hashTableNode->fd==fd){
-            return hashTableNode;                                           
+            pthread_mutex_unlock(&clientList_mutex);
+            return hashTableNode;         
+
         }
         hashTableNode = hashTableNode->next;
     }
+    pthread_mutex_unlock(&clientList_mutex);
     return NULL;                                                  
 }
 
 void deleteClient(int cid,int gid,int fd)
 {
     int key = hash(fd);
+    pthread_mutex_lock(&clientList_mutex);
     if(clientList[key] == NULL) 
     {
         //client not present
         printf("client not found in the list\n");
+        pthread_mutex_unlock(&clientList_mutex);
         return;
     }
     else
@@ -96,14 +104,16 @@ void deleteClient(int cid,int gid,int fd)
                 free(temp);
                 temp=NULL;
                 printf("client with fd: %d  deleted successfully !!!\n",fd);
+                pthread_mutex_unlock(&clientList_mutex);
                 return;
             }
             if(head->next == NULL)
             {
                 printf("client not found in the list\n");
-                return;
+                
             }
         }
+        pthread_mutex_unlock(&clientList_mutex);
     }
 }
 
@@ -112,6 +122,7 @@ void deleteClient(int cid,int gid,int fd)
  */
 void addClient_to_group(int cid,int gid,int fd){                                     
     // stores the hash value of the number to be inserted                       
+    pthread_mutex_lock(&groupList_mutex);
     if(groupList[gid] == NULL){                                                
         // if the list in clientList[key] is empty                              
        // printf("\nwhen clientList[key] is NULL ");                            
@@ -132,15 +143,18 @@ void addClient_to_group(int cid,int gid,int fd){
         hashTableNode->next->sockfd = fd;                                      
         hashTableNode->next->next = NULL;                                       
     }                                                                           
+    pthread_mutex_unlock(&groupList_mutex);
 } 
 
                                      
 void deleteClient_from_group(int cid,int gid,int fd)                            
-{                                                                               
+{                   
+    pthread_mutex_lock(&groupList_mutex);
     if(groupList[gid] == NULL)                                                 
     {                                                                           
         //client not present                                                    
-        printf("client not found in the grouplist\n");                          
+        printf("client not found in the grouplist\n");  
+        pthread_mutex_unlock(&groupList_mutex);
         return;                                                                 
     }                                                                           
     else                                                                        
@@ -165,18 +179,21 @@ void deleteClient_from_group(int cid,int gid,int fd)
                 temp=NULL;                                                      
                 printf("client with cid: %d  deleted successfully from group:\
                         %d !!!\n",cid,gid);         
+               pthread_mutex_unlock(&groupList_mutex);
                return;                                                         
             }                                                                   
             if(head->next == NULL)                                              
             {                                                                   
                 printf("client not found in the grouplist\n");                
-                return;                                                         
+                                                                         
             }                                                                   
-        }                                                                       
+        }
+        pthread_mutex_unlock(&groupList_mutex);
     }                                                                           
 }        
 void displayClients_within_group(int gid)
 {
+ pthread_mutex_lock(&groupList_mutex);   
  groupNode *hashMapNode = groupList[gid];
  printf("\nGroup %d :\n",gid);                              
  while(hashMapNode!=NULL){                                                      
@@ -184,11 +201,15 @@ void displayClients_within_group(int gid)
     hashMapNode = hashMapNode->next;                                           
   }       
  printf("\n");
-
+pthread_mutex_unlock(&groupList_mutex);
 }
+
+
 groupNode* getClientList_within_group(int gid)
 {
+    pthread_mutex_lock(&groupList_mutex);
     return groupList[gid];
+    pthread_mutex_unlock(&groupList_mutex);
 }
 
 void perform_task (void);
