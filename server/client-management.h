@@ -42,6 +42,7 @@ void deleteClient(int cid, int gid, int fd);
 typedef struct groupNode{
     int clientId;
     int sockfd;
+    int status;
     struct groupNode *next;
 }groupNode;
 
@@ -54,6 +55,17 @@ void displayClients_within_group(int gid);
 groupNode* getClientList_within_group(int gid);
 
 void perform_task (void);
+void perform_add_task();
 
 void displayUserInterface();       
 
+enum {
+    GROUP_UNKNOWN,
+    GROUP_ADD
+};
+
+enum {
+    FREE,
+    BUSY,
+    DONE
+};

@@ -11,7 +11,7 @@ pthread_mutex_t clientList_mutex;
 pthread_mutex_t groupList_mutex;
 
 clientInfo* clientList[SIZE_HASH_MAP];           // hash table
-static groupNode *groupList[NUMOFGROUPS];
+groupNode *groupList[NUMOFGROUPS];
 
 /* HASH FUNCTIONS */
 int hash(int value){
@@ -265,7 +265,7 @@ void displayUserInterface()
                     displayClients_within_group(1);
                     break;
             case 3: printf("3");
-                    perform_task();
+                    perform_add_task(); //perform_task();
                     break;
             case 4: printf("4");
                     exit(0);
