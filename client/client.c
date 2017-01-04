@@ -17,6 +17,8 @@
 
 #define MAXDATASIZE 1000 // max number of bytes we can get at once 
 
+#define MAXDATALENGTH 5000
+
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa) {
     if (sa->sa_family == AF_INET) {
@@ -117,6 +119,44 @@ void client_manage(int sockfd){
                 ,mesg->group_id,mesg->flags);
     }
 
+    int *payload = NULL, ii = 0;
+    struct Mesg_header *mesg = (struct Mesg_header*)malloc(/*sizeof \
+                (struct Mesg_header)*/ MAXDATALENGTH );
+    while (1) {
+        //struct Mesg_header *mesg = (struct Mesg_header*)malloc(/*sizeof \
+        //        (struct Mesg_header)*/ MAXDATALENGTH );
+        //while (recv(sockfd, mesg, sizeof(mesg), 0) == 0);
+        if ( recv(sockfd, mesg, MAXDATALENGTH, 0) != 0 ) { 
+        printf("\n Received mesg type=%d , group_id =%d, len=%d, flags=%d\n",\
+                mesg->type, mesg->group_id, mesg->len, mesg->flags);
+        switch ( mesg->type ) {
+            case DATA : 
+                //int *payload = NULL;
+                //payload = (int*)malloc(((mesg->len) * sizeof(int)));
+                payload = (int *)&mesg->payload[0];
+                //recv(sockfd, payload, (mesg->len) * sizeof(int) , 0);
+                long int result = 0, *res ;
+                for (ii = 0; ii < mesg->len; ii++){
+            printf("Payload[%d] htons(%d) %d\n", ii, payload[ii], \
+                    ntohs(payload[ii]));
+                    result += ntohs(payload[ii]);
+                }
+                printf("\n Result = %ld\n", result);
+                printf(" Result = %ld", result);
+                mesg->len = 1;
+                res = (long int*)&mesg->payload[0];
+                *res = htons(result);
+                printf("Final Result htons(%ld) %ld\n", result, *res);
+                sleep(1);
+                if ((send(sockfd,mesg, (sizeof(struct Mesg_header) + \
+                                        sizeof(long int)),0))== -1) {
+                    fprintf(stderr, "Failure Sending Message\n");               
+                    close(sockfd);                                              
+                    exit(1);                                                    
+                }
+        }
+        }
+    }
 
 
 #if 0
@@ -193,7 +233,8 @@ int main(int argc, char *argv[]){
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
 
-    if ((rv = getaddrinfo(argv[1], PORT, &hints, &servinfo)) != 0) {
+    char *x;
+    if ((rv = getaddrinfo(argv[1], argv[2] /*PORT*/, &hints, &servinfo)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
     }

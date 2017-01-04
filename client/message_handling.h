@@ -18,6 +18,7 @@ struct Mesg_header{
      unsigned type:4;                                                           
      unsigned group_id:10;                                                      
      unsigned flags:8;                                                          
+     unsigned len:16;
      char payload[0];  //check on its memory allocation when data is received.  
 };                                                                              
 

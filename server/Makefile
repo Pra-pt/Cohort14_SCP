@@ -1,6 +1,6 @@
 #yet to create a Makefile
 HEADERS = task_mgr.h message_handling.h
-OBJECTS = client-management.o server_epoll.o processMessage.o
+OBJECTS = task_mgr.o add_task_server.o client-management.o server_epoll.o processMessage.o 
 
 default: server.xx
 
@@ -12,5 +12,5 @@ server.xx: $(OBJECTS)
 
 clean:
 	-rm -f $(OBJECTS)
-	-rm -f program
+	-rm -f server.xx
 

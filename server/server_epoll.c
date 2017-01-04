@@ -141,11 +141,12 @@ void handle_listening_server(int s, int sfd, int efd, struct epoll_event* event)
                       abort ();
                     }
                   addClient(infd, 1, infd);
-                  addClient_to_group(infd, 1, infd);
+                  //addClient_to_group(infd, 1, infd);
                 }
 }
 
 #define MAXDATASIZE 512
+#define MAXDATALENGTH 5000
 
 void handle_client( int s, int i, struct epoll_event *events ){
               /* We have data on the fd waiting to be read. Read and
@@ -158,7 +159,7 @@ void handle_client( int s, int i, struct epoll_event *events ){
               while (1)
                 {
                   ssize_t count;
-                  char buf[512];
+                  char buf[MAXDATALENGTH];
                   char *ptr=buf;
                   struct Mesg_header *mesg=NULL;
 
